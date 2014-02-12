@@ -34,6 +34,7 @@ fappyBird.Character.prototype.bindEvents = function() {
                     location.reload();
                 }
             }
+
         }, 40);
     }, false);
 
@@ -44,10 +45,10 @@ fappyBird.Pipe = function(height, pipeNumber) {
     this.height = height;
     this.pipeId = "pipe_" + pipeNumber;
     this.domForeground = document.getElementById("foreground");
+    this.domCharacter = document.getElementById("littleBastard");
 
     this.appendPipe(height);
     this.setAnimation(1);
-    //this.bindEvents();
 
 };
 
@@ -71,6 +72,20 @@ fappyBird.Pipe.prototype.setAnimation = function(speed) {
         if(pipeLocation == -50){
             that.pipeDom.remove();
         }
+
+        //character pipe collusion
+        var characterRightPosition = that.domCharacter.offsetWidth + that.domCharacter.offsetLeft
+        var pipeLeftPosition = that.pipeDom.offsetLeft;
+        if(characterRightPosition >= pipeLeftPosition) {
+            var characterTopPosition = that.domCharacter.offsetTop;
+            var characterBottomPosition = characterTopPosition + that.domCharacter.offsetHeight;
+            var pipeSpaceTop = document.getElementsByClassName("pipeHead", that.pipeDom)[0].offsetTop - ((window.innerHeight * (that.height * -1)) / 100) + document.getElementsByClassName("pipeHead", that.pipeDom)[0].offsetHeight;
+            var pipeSpaceBottom = document.getElementsByClassName("pipeHead", that.pipeDom)[1].offsetTop - ((window.innerHeight * (that.height * -1)) / 100);
+            if(characterTopPosition < pipeSpaceTop || characterBottomPosition > pipeSpaceBottom){
+                location.reload();
+            }
+        }
+
     }, 40);
 
 };
@@ -116,11 +131,11 @@ fappyBird.Level.prototype.setAnimation = function(speed) {
     var that = this;
 
     var backgroundXPosition = 0;
-    this.domBackground.style.backgroundPosition = backgroundXPosition + "px 0px";
+    this.domBackground.style.backgroundPosition = backgroundXPosition + "px 0";
     setInterval(function(){
 
         backgroundXPosition -= speed;
-        that.domBackground.style.backgroundPosition = backgroundXPosition + "px 0px";
+        that.domBackground.style.backgroundPosition = backgroundXPosition + "px 0";
 
     }, 25);
 
