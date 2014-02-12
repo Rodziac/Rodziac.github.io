@@ -15,19 +15,26 @@ fappyBird.Character.prototype.bindEvents = function() {
     var jumpId = 0;
     this.domGame.addEventListener("click", function(){
         jumpId++;
+        var oldTopValue = 0;
+        var jumpHeight = 9;
         var currentJumpId = jumpId;
         setInterval(function(){
             if(currentJumpId == jumpId) {
-                that.domElement.className = "upAnimation";
-                //TODO: going up
-                that.domElement.className = "downAnimation";
-                //TODO: going down
-                if(that.domElement.style.top = "100%"){
-                    alert("die");
+                oldTopValue = parseInt(that.domElement.style.top.replace("%",""));
+                if (jumpHeight > 0) {
+                    that.domElement.className = "upAnimation";
+                    that.domElement.style.top = --oldTopValue + "%";
+                    jumpHeight--;
+                } else {
+                    that.domElement.className = "downAnimation";
+                    that.domElement.style.top = ++oldTopValue + "%";
                 }
-                //TODO: collided with floor
+
+                if(that.domElement.style.top == "100%"){
+                    location.reload();
+                }
             }
-        }, 25);
+        }, 40);
     }, false);
 
 };
@@ -38,22 +45,33 @@ fappyBird.Pipe = function(height, pipeNumber) {
     this.pipeId = "pipe_" + pipeNumber;
     this.domForeground = document.getElementById("foreground");
 
-    this.appendPipe();
-    this.setAnimation(3);
-    this.bindEvents();
+    this.appendPipe(height);
+    this.setAnimation(1);
+    //this.bindEvents();
 
 };
 
-fappyBird.Pipe.prototype.appendPipe = function() {
+fappyBird.Pipe.prototype.appendPipe = function(height) {
 
     var domPipeTemplate = this.pipeTemplate();
     this.domForeground.innerHTML += domPipeTemplate;
+    this.pipeDom = document.getElementById(this.pipeId);
+    this.pipeDom.style.top = height + "%";
 
 };
 
-fappyBird.Pipe.prototype.setAnimation = function() {
+fappyBird.Pipe.prototype.setAnimation = function(speed) {
 
-    //TODO: Move pipe from right to left
+    var that = this;
+    var pipeLocation = 100;
+    this.pipeDom.style.left = pipeLocation + "%";
+    setInterval(function(){
+        pipeLocation -= speed
+        that.pipeDom.style.left = pipeLocation + "%";
+        if(pipeLocation == -50){
+            that.pipeDom.remove();
+        }
+    }, 40);
 
 };
 
@@ -84,8 +102,8 @@ fappyBird.Level.prototype.bindEvents = function(speed) {
     var that = this;
 
     var gameActions = function() {
-        //that.setAnimation(speed);
-        //that.generatePipes();
+        that.setAnimation(speed);
+        that.generatePipes();
         that.domGame.removeEventListener("click", gameActions, false);
     };
 
@@ -112,7 +130,7 @@ fappyBird.Level.prototype.generatePipes = function(speed) {
 
     var pipeCount = 0;
     setInterval(function(){
-        new fappyBird.Pipe(50, pipeCount);
+        new fappyBird.Pipe(-50, pipeCount++);
     }, 5000);
 
 };
